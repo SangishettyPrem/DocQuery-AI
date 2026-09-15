@@ -312,6 +312,47 @@ The system will strictly return:
 
 ---
 
-## 📄 License
+## 🚀 Live Production Deployment Guide
+
+Deploying DocQuery AI takes under 5 minutes using **Render** (for the Express microservice) and **Vercel** (for the Next.js frontend).
+
+### 1. Backend Deployment on [Render](https://render.com)
+
+1. Sign in to **Render** and click **New +** → **Web Service**.
+2. Connect your GitHub repository: `SangishettyPrem/DocQuery-AI`.
+3. Configure service settings:
+   - **Name:** `docuquery-ai-backend`
+   - **Root Directory:** `docuquery-ai-backend`
+   - **Environment:** `Node`
+   - **Build Command:** `npm install && npm run build`
+   - **Start Command:** `npm start`
+4. Add the following **Environment Variables** in the Render Dashboard:
+   | Key | Value |
+   | :--- | :--- |
+   | `NODE_ENV` | `production` |
+   | `MONGO_URI` | `mongodb+srv://<username>:<password>@docqueryai.kxg4y9t.mongodb.net/docuquery_ai?retryWrites=true&w=majority` |
+   | `VECTOR_INDEX_NAME` | `vector_index` |
+   | `AI_PROVIDER` | `gemini` |
+   | `GEMINI_API_KEY` | *Your Google Gemini API Key* |
+5. Click **Create Web Service**. Once deployed, copy your backend URL (e.g., `https://docuquery-ai-backend.onrender.com`).
+
+> **Tip for MongoDB Atlas:** Ensure your MongoDB Atlas Network Access allows connections from anywhere (`0.0.0.0/0`) so Render's dynamic outbound IP addresses can connect.
+
+---
+
+### 2. Frontend Deployment on [Vercel](https://vercel.com)
+
+1. Sign in to **Vercel** and click **Add New...** → **Project**.
+2. Import your GitHub repository: `SangishettyPrem/DocQuery-AI`.
+3. Configure project settings:
+   - **Root Directory:** Click **Edit** and select `docuquery-ai-frontend`.
+   - **Framework Preset:** `Next.js` (automatically detected).
+4. In **Environment Variables**, add:
+   | Key | Value |
+   | :--- | :--- |
+   | `NEXT_PUBLIC_API_BASE_URL` | `https://<your-backend-app-name>.onrender.com` |
+5. Click **Deploy**. Within 60 seconds, your interactive Next.js RAG dashboard will be live on a global CDN!
+
+---
 
 This project is open-source and licensed under the [MIT License](LICENSE).
