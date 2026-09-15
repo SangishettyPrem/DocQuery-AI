@@ -5,7 +5,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "rimraf dist && tsc",
+    "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
     "type-check": "tsc --noEmit"
   },
