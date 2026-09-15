@@ -188,9 +188,9 @@ export const generateAnswerFromContext = async (
     if (env.AI_PROVIDER === "gemini") {
       const client = getGeminiClient();
 
-      // 1. Define your model hierarchy
+      // 1. Define your model hierarchy using official Google production models
       const PRIMARY_MODEL = "gemini-3.8-flash";
-      const FALLBACK_MODEL = "gemini-3.5-flash-lite"; // Highly available stable model
+      const FALLBACK_MODEL = "gemini-3.5-flash-lite"; // High capacity fallback model
 
       let result;
       try {

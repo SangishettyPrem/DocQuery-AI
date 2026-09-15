@@ -7,8 +7,12 @@
 [![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas_Vector_Search-forestgreen.svg)](https://www.mongodb.com/products/platform/atlas-vector-search)
 [![Google Gemini](https://img.shields.io/badge/AI-Google_Gemini-orange.svg)](https://ai.google.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38bdf8.svg)](https://tailwindcss.com/)
+[![Live Demo](https://img.shields.io/badge/Demo-Live_Dashboard-success.svg?style=flat&logo=vercel)](https://doc-query-ai-delta.vercel.app/)
+
+> 🚀 **Live Demo:** [DocuQuery AI — Intelligent Vector RAG Dashboard](https://doc-query-ai-delta.vercel.app/)
 
 **DocuQuery AI** is an enterprise-ready, context-restricted **Retrieval-Augmented Generation (RAG)** platform designed to ingest raw unstructured documents (`.txt`, `.md`, `.csv`), compute high-dimensional mathematical vector embeddings, store them in **MongoDB Atlas Vector Search**, and deliver grounded, zero-hallucination answers through an interactive Next.js dashboard and Express REST API.
+
 
 ## 📂 Repository Structure
 
@@ -294,7 +298,7 @@ Deploying DocQuery AI takes under 5 minutes using **Render** (for the Express mi
    | Key | Value |
    | :--- | :--- |
    | `NEXT_PUBLIC_API_BASE_URL` | `https://<your-backend-app-name>.onrender.com` |
-5. Click **Deploy**. Within 60 seconds, your interactive Next.js RAG dashboard will be live on a global CDN!
+5. Click **Deploy**. Within 60 seconds, your interactive Next.js RAG dashboard will be live on a global CDN: **[https://doc-query-ai-delta.vercel.app/](https://doc-query-ai-delta.vercel.app/)**!
 
 ---
 
