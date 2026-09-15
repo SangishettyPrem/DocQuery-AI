@@ -10,63 +10,6 @@
 
 **DocuQuery AI** is an enterprise-ready, context-restricted **Retrieval-Augmented Generation (RAG)** platform designed to ingest raw unstructured documents (`.txt`, `.md`, `.csv`), compute high-dimensional mathematical vector embeddings, store them in **MongoDB Atlas Vector Search**, and deliver grounded, zero-hallucination answers through an interactive Next.js dashboard and Express REST API.
 
----
-
-## 🏛️ System Architecture
-
-```mermaid
-flowchart TD
-    subgraph Client ["Frontend: Next.js 15 + Tailwind CSS (Port 3000)"]
-        UI[Interactive Dashboard]
-        UploadZone[Drag-and-Drop Ingestion Dropzone]
-        Sidebar[Real-Time MongoDB Documents Sidebar]
-        Chat[Context-Grounded Chat Canvas]
-    end
-
-    subgraph Service ["Backend: Node.js + Express + TypeScript (Port 5000)"]
-        API[Express Router & Middleware]
-        Chunker["Text Chunker (~500 chars / 100 overlap)"]
-        VectorService[Vector Search Service]
-        AIService[AI & Embedding Service]
-    end
-
-    subgraph ExternalAI ["External AI Provider"]
-        GeminiEmbed["Google Gemini gemini-embedding-2 (768 dims)"]
-        GeminiLLM["Google Gemini 1.5 Flash (Strict Grounding)"]
-    end
-
-    subgraph Database ["Database: MongoDB Atlas"]
-        CollectionChunks[("document_chunks (Vector Embeddings)")]
-        CollectionDocs[("documents (Document Metadata)")]
-        VectorIndex{{"Atlas Vector Search Index (Cosine Similarity)"}}
-    end
-
-    %% Ingestion Flow
-    UploadZone -->|1. Multipart File Upload| API
-    API -->|2. Boundary Slicing| Chunker
-    Chunker -->|3. Raw Text Chunks| AIService
-    AIService -->|4. Generate Embeddings| GeminiEmbed
-    GeminiEmbed -->|5. Vector Float Arrays| AIService
-    AIService -->|6. Batch Insert| CollectionChunks
-    API -->|7. Metadata Upsert| CollectionDocs
-
-    %% Query Flow
-    Chat -->|8. POST /query (question + documentId)| API
-    API -->|9. Question String| AIService
-    AIService -->|10. Question Vector| GeminiEmbed
-    API -->|11. $vectorSearch Query| VectorIndex
-    VectorIndex -->|12. Top 3 Cosine Matches| VectorService
-    VectorService -->|13. Unified Context Block| AIService
-    AIService -->|14. Context + Strict System Prompt| GeminiLLM
-    GeminiLLM -->|15. Non-Hallucinatory Answer| UI
-
-    %% Real-time Sync Flow
-    Sidebar -->|GET /documents| API
-    API -->|Read Metadata| CollectionDocs
-```
-
----
-
 ## 📂 Repository Structure
 
 ```
@@ -333,7 +276,7 @@ Deploying DocQuery AI takes under 5 minutes using **Render** (for the Express mi
    | `MONGO_URI` | `mongodb+srv://<username>:<password>@docqueryai.kxg4y9t.mongodb.net/docuquery_ai?retryWrites=true&w=majority` |
    | `VECTOR_INDEX_NAME` | `vector_index` |
    | `AI_PROVIDER` | `gemini` |
-   | `GEMINI_API_KEY` | *Your Google Gemini API Key* |
+   | `GEMINI_API_KEY` | _Your Google Gemini API Key_ |
 5. Click **Create Web Service**. Once deployed, copy your backend URL (e.g., `https://docuquery-ai-backend.onrender.com`).
 
 > **Tip for MongoDB Atlas:** Ensure your MongoDB Atlas Network Access allows connections from anywhere (`0.0.0.0/0`) so Render's dynamic outbound IP addresses can connect.
