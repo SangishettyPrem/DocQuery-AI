@@ -1,0 +1,28 @@
+CLINICAL RESEARCH SUMMARY: PHASE-3 EVALUATION OF NEURO-CALM (NC-408)
+PROTOCOL IDENTIFIER: NCT-05982144
+SPONSOR: BIOPRISM PHARMACEUTICALS
+DATE: JANUARY 2026
+
+1. INVESTIGATION OBJECTIVE & STUDY DESIGN
+This multi-center, double-blind, randomized, placebo-controlled Phase-3 trial evaluated the therapeutic efficacy and safety profile of NC-408 (administered at 25mg and 50mg oral daily doses) for adult patients diagnosed with Treatment-Resistant Major Depressive Disorder (TR-MDD). The study enrolled 640 participants aged 21 to 64 across 28 clinical trial sites in the United States and Canada over a 16-week treatment duration.
+
+2. DEMOGRAPHICS & PARTICIPANT DISTRIBUTION
+- Total Enrolled: 640 patients (58% female, 42% male, mean age: 39.4 years).
+- Cohort A (Placebo control): 214 patients.
+- Cohort B (NC-408 25mg daily): 213 patients.
+- Cohort C (NC-408 50mg daily): 213 patients.
+- Study Completion Rate: 91.2% (584 patients completed the full 16-week protocol).
+
+3. PRIMARY CLINICAL ENDPOINTS & EFFICACY RESULTS
+The primary efficacy measure was the mean change from baseline in the Montgomery-Asberg Depression Rating Scale (MADRS) total score at Week 12.
+- Placebo Group: Achieved a mean MADRS score reduction of -6.8 points (p > 0.05).
+- 25mg Cohort: Demonstrated a statistically significant mean MADRS score reduction of -15.4 points (p < 0.001 vs placebo).
+- 50mg Cohort: Demonstrated superior efficacy with a mean MADRS score reduction of -21.2 points (p < 0.0001 vs placebo).
+Full clinical remission (defined as MADRS total score <= 10) was achieved by 64.8% of participants in the 50mg cohort compared to only 18.2% in the placebo group.
+
+4. ADVERSE EVENTS & SAFETY OBSERVATIONS
+NC-408 was generally well-tolerated. The most frequently reported adverse effects included:
+- Mild transient nausea: reported in 12.4% of 50mg participants and 7.1% of 25mg participants, typically resolving within the first 10 days.
+- Headache: reported in 9.8% across both active treatment cohorts compared to 8.4% in the placebo group.
+- Somnolence / Drowsiness: observed in 6.2% of participants receiving the 50mg dosage.
+No clinically significant alterations in electrocardiogram (QTc intervals), hepatic enzyme levels, or blood pressure readings were recorded throughout the 16-week trial.

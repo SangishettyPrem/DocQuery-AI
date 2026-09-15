@@ -1,0 +1,11 @@
+sku,product_name,category,unit_price,inventory_count,rating,supplier,warranty_months
+PRD-101,UltraClean HEPA Air Purifier Pro,Home Appliances,299.99,145,4.8,BreatheWell Corp,24
+PRD-102,SonicGlide Wireless Mechanical Keyboard,Computer Peripherals,129.50,320,4.7,TechKey Industries,12
+PRD-103,OptiVision 4K 144Hz Gaming Monitor 27-inch,Displays,449.00,85,4.9,VisionTech Electronics,36
+PRD-104,ErgoComfort Mesh Ergonomic Office Chair,Furniture,389.00,60,4.6,WorkWell Furnishings,60
+PRD-105,PureHydro Insulated Smart Water Bottle 32oz,Fitness & Outdoor,45.00,540,4.5,HydroLife Gear,12
+PRD-106,AeroDrone 4K Folding Quadcopter with Gimbal,Drones & Cameras,799.00,42,4.7,SkyFly Robotics,24
+PRD-107,SoundWave Active Noise Cancelling Headphones,Audio Equipment,249.99,210,4.8,AudioMax Labs,24
+PRD-108,VoltFast 100W GaN Multi-Port USB-C Charger,Mobile Accessories,59.99,680,4.9,PowerPulse Tech,18
+PRD-109,ThermoBake Digital Smart Convection Oven,Kitchen Appliances,189.95,110,4.4,ChefPrecision Inc,24
+PRD-110,LuminoDesk Intelligent RGB Ambient Desk Lamp,Lighting,79.00,290,4.6,BrightLiving Co,12

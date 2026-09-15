@@ -1,0 +1,18 @@
+SYSTEM ARCHITECTURE & CLOUD INFRASTRUCTURE SECURITY SPECIFICATION
+PROJECT CODENAME: APEX-GATEWAY
+REVISION: 4.2.0 | DATE: FEBRUARY 2026
+
+1. CLUSTER TOPOLOGY & NETWORKING
+Apex-Gateway is deployed across three AWS Availability Zones in region us-east-1. The VPC CIDR block is configured as 10.100.0.0/16, split into public subnets (10.100.1.0/24, 10.100.2.0/24), private application subnets (10.100.10.0/24, 10.100.20.0/24), and isolated database subnets (10.100.50.0/24, 10.100.60.0/24). All ingress internet traffic routes through an AWS Application Load Balancer with AWS WAF enabled. Direct SSH access to EC2/EKS nodes is permanently disabled; node administration is restricted to AWS Systems Manager Session Manager.
+
+2. AUTHENTICATION & TOKEN LIFECYCLE
+Client authentication utilizes asymmetric JSON Web Tokens (JWT) signed via RSA-SHA256 with 4096-bit keys rotated every 90 days. Access tokens carry an expiration time of 15 minutes. Refresh tokens are stored in an in-memory Redis cluster with a strict sliding 7-day expiration window. In the event of token revocation or compromised credentials, Redis Bloom filters immediately blacklist the token fingerprint across all microservice pods within 150 milliseconds.
+
+3. DATA AT REST AND IN TRANSIT ENCRYPTION
+All inter-service gRPC and REST communication requires mutual TLS (mTLS) with TLS version 1.3 enforced by the Istio service mesh. Database volumes residing in MongoDB Atlas and AWS RDS are encrypted at rest using AWS KMS Customer Managed Keys (CMKs) featuring AES-256 encryption. Vector embedding fields in MongoDB Atlas are restricted to application-tier access through dedicated VPC Peering connections.
+
+4. RATE LIMITING & DDOS MITIGATION
+Rate limiting is enforced at the Envoy reverse-proxy layer using a distributed token bucket algorithm. Unauthenticated IP addresses are capped at 60 requests per minute with a burst allowance of 10 requests. Authenticated API tier keys have a tier-1 limit of 1,200 requests per minute, tier-2 at 5,000 requests per minute, and enterprise tier at 25,000 requests per minute. Exceeding thresholds returns an HTTP 429 status code with a 'Retry-After' header.
+
+5. DISASTER RECOVERY & BACKUP OBJECTIVES
+Database snapshots are taken automatically every 6 hours and replicated to AWS region us-west-2 (Oregon). The Recovery Point Objective (RPO) is strictly defined at 15 minutes. The Recovery Time Objective (RTO) for full microservice failover to the secondary region is 45 minutes, validated through automated bi-monthly chaos engineering drills.
