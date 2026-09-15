@@ -4,6 +4,8 @@ export interface DocumentItem {
   fileSize: number;
   uploadedAt: string;
   chunkCount?: number;
+  suggestedQuestions?: string[];
+  summary?: string;
 }
 
 export interface DocumentChunkDetail {

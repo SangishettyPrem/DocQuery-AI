@@ -8,6 +8,7 @@ import {
   generateEmbedding,
   generateEmbeddingsBatch,
   generateAnswerFromContext,
+  generateDocumentInsights,
 } from "../services/ai.service";
 import {
   searchSimilarChunks,
@@ -72,6 +73,9 @@ export const uploadDocument = async (
       createdAt: new Date(),
     }));
 
+    // Generate automated document summary & starter questions
+    const insights = await generateDocumentInsights(originalname, fileContent);
+
     await DocumentChunk.insertMany(chunkDocs);
     await DocumentModel.findOneAndUpdate(
       { documentId },
@@ -80,6 +84,8 @@ export const uploadDocument = async (
         fileName: originalname,
         fileSize: buffer.length,
         chunkCount: chunks.length,
+        suggestedQuestions: insights.questions,
+        summary: insights.summary,
         createdAt: new Date(),
       },
       { upsert: true, new: true },
@@ -93,12 +99,16 @@ export const uploadDocument = async (
       fileName: originalname,
       fileSize: buffer.length,
       chunkCount: chunks.length,
+      suggestedQuestions: insights.questions,
+      summary: insights.summary,
       data: {
         documentId,
         fileName: originalname,
         fileSize: buffer.length,
         chunkCount: chunks.length,
         totalChunks: chunks.length,
+        suggestedQuestions: insights.questions,
+        summary: insights.summary,
         embeddingDimensions: embeddingsList[0]?.length || 0,
         createdAt: new Date().toISOString(),
       },
@@ -204,15 +214,30 @@ export const getAllDocuments = async (
   // 1. Get documents from DocumentModel
   try {
     const documents = await DocumentModel.find().sort({ createdAt: -1 }).lean();
-    const filteredDocuments = documents
-      .filter((doc) => doc.chunkCount > 0)
-      .map((doc) => ({
-        documentId: doc.documentId,
-        fileName: doc.fileName,
-        fileSize: doc.fileSize,
-        chunkCount: doc.chunkCount,
-        uploadedAt: new Date(doc.createdAt).toISOString(),
-      }));
+    const filteredDocuments = await Promise.all(
+      documents
+        .filter((doc) => doc.chunkCount > 0)
+        .map(async (doc) => {
+          let questions = doc.suggestedQuestions || [];
+          let summary = doc.summary || "";
+
+          if (!questions || questions.length === 0) {
+            const fallbackInsights = await generateDocumentInsights(doc.fileName, "");
+            questions = fallbackInsights.questions;
+            summary = summary || fallbackInsights.summary;
+          }
+
+          return {
+            documentId: doc.documentId,
+            fileName: doc.fileName,
+            fileSize: doc.fileSize,
+            chunkCount: doc.chunkCount,
+            suggestedQuestions: questions,
+            summary,
+            uploadedAt: new Date(doc.createdAt).toISOString(),
+          };
+        }),
+    );
 
     res.status(200).json({
       success: true,

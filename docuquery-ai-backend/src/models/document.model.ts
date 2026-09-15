@@ -5,6 +5,8 @@ export interface IDocument extends Document {
   fileName: string;
   fileSize: number;
   chunkCount: number;
+  suggestedQuestions: string[];
+  summary: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +32,14 @@ const DocumentSchema = new Schema<IDocument>(
     chunkCount: {
       type: Number,
       default: 0,
+    },
+    suggestedQuestions: {
+      type: [String],
+      default: [],
+    },
+    summary: {
+      type: String,
+      default: "",
     },
     createdAt: {
       type: Date,

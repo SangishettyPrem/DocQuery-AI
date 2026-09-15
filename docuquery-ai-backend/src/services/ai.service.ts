@@ -292,3 +292,156 @@ export const generateAnswerFromContext = async (
     );
   }
 };
+
+/**
+ * Pre-configured questions for known sample files
+ */
+const SAMPLE_PRESETS: Record<string, { summary: string; questions: string[] }> =
+  {
+    "acme_corp_q3_financial_report.md": {
+      summary:
+        "ACME Corporation Q3 financial performance, revenue growth, operating margins, and Q4 outlook.",
+      questions: [
+        "What was the total revenue in Q3 and what drove the growth?",
+        "What are the revenue projections and capital expenditures for Q4?",
+        "How much cash reserves did ACME end the quarter with?",
+      ],
+    },
+    "employee_handbook_remote_policy.md": {
+      summary:
+        "GlobalTech Innovations remote work policies, equipment stipends, working hours, and paid leave.",
+      questions: [
+        "What is the home office setup allowance and monthly internet subsidy?",
+        "What are the core working hours and meeting-free guidelines?",
+        "How many weeks of paid parental leave are provided for primary caregivers?",
+      ],
+    },
+    "cloud_architecture_security_specs.txt": {
+      summary:
+        "Apex-Gateway cloud topology, JWT authentication, rate limiting, and disaster recovery objectives.",
+      questions: [
+        "What is the token expiration window and key rotation interval?",
+        "What are the RPO and RTO disaster recovery objectives?",
+        "What are the rate limits for unauthenticated and authenticated API tiers?",
+      ],
+    },
+    "product_catalog_sales_data.csv": {
+      summary:
+        "Product catalog inventory, pricing, customer ratings, suppliers, and warranty terms.",
+      questions: [
+        "Which supplier produces the 4K Gaming Monitor and what is its warranty?",
+        "What is the unit price and inventory count for the Smart Water Bottle?",
+        "Which products have a customer rating of 4.8 or higher?",
+      ],
+    },
+    "medical_clinical_trial_summary.txt": {
+      summary:
+        "Phase-3 trial evaluation of Neuro-Calm (NC-408) for Treatment-Resistant Major Depressive Disorder.",
+      questions: [
+        "What was the reduction in MADRS score for the 50mg cohort compared to placebo?",
+        "What were the most frequently reported adverse side effects?",
+        "What percentage of participants in the 50mg cohort achieved full clinical remission?",
+      ],
+    },
+  };
+
+/**
+ * Generates starter questions and a summary for any uploaded document.
+ */
+export const generateDocumentInsights = async (
+  fileName: string,
+  sampleText: string,
+): Promise<{ summary: string; questions: string[] }> => {
+  // 1. Check presets for instant, curated questions on demo files
+  const normalizedName = fileName.toLowerCase().trim();
+  for (const [presetKey, presetData] of Object.entries(SAMPLE_PRESETS)) {
+    if (
+      normalizedName.includes(presetKey.toLowerCase()) ||
+      presetKey.toLowerCase().includes(normalizedName)
+    ) {
+      return presetData;
+    }
+  }
+
+  // 2. Default fallback questions if LLM generation fails or sample is short
+  const defaultFallback = {
+    summary: `Document: ${fileName}`,
+    questions: [
+      `What is the primary objective or topic discussed in ${fileName}?`,
+      "What are the key findings or data points mentioned?",
+      "What are the main conclusions or recommendations?",
+    ],
+  };
+
+  if (!sampleText || sampleText.trim().length === 0) {
+    return defaultFallback;
+  }
+
+  const promptText = `Analyze the following document preview and generate:
+1. A concise 1-sentence summary of what this document is about.
+2. Exactly 3 short, specific questions that a reader could ask that can be answered from this document.
+
+Respond ONLY with valid JSON in this exact structure:
+{
+  "summary": "1-sentence summary here.",
+  "questions": [
+    "Specific question 1?",
+    "Specific question 2?",
+    "Specific question 3?"
+  ]
+}
+
+Document Preview:
+"""
+${sampleText.slice(0, 1500)}
+"""`;
+
+  try {
+    if (env.AI_PROVIDER === "gemini") {
+      const client = getGeminiClient();
+      const model = client.getGenerativeModel({
+        model: "gemini-1.5-flash",
+        generationConfig: {
+          responseMimeType: "application/json",
+          temperature: 0.2,
+        },
+      });
+
+      const response = await model.generateContent(promptText);
+      const text = response.response.text();
+      const parsed = JSON.parse(text);
+
+      if (Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+        return {
+          summary: parsed.summary || defaultFallback.summary,
+          questions: parsed.questions.slice(0, 3),
+        };
+      }
+    } else {
+      const client = getOpenAIClient();
+      const response = await client.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: promptText }],
+        response_format: { type: "json_object" },
+        temperature: 0.2,
+      });
+
+      const text = response.choices[0]?.message?.content;
+      if (text) {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+          return {
+            summary: parsed.summary || defaultFallback.summary,
+            questions: parsed.questions.slice(0, 3),
+          };
+        }
+      }
+    }
+  } catch (error) {
+    console.warn(
+      `⚠️ Could not generate automated insights for ${fileName}. Using smart defaults.`,
+    );
+  }
+
+  return defaultFallback;
+};

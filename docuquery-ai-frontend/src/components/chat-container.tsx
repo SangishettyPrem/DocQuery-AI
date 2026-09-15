@@ -15,6 +15,8 @@ import {
   Menu,
   Loader2,
   Database,
+  Sparkles,
+  FileText,
 } from "lucide-react";
 
 interface ChatContainerProps {
@@ -45,7 +47,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
         {
           id: "sys-init",
           sender: "ai",
-          text: `Document **"${activeDocument.fileName}"** is ready. Ask any factual question grounded strictly in this document.`,
+          text: `Document **"${activeDocument.fileName}"** is ready. Ask any question grounded strictly in this document or click a suggested prompt below.`,
           timestamp: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -65,19 +67,16 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     }
   }, [messages, isLoading]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputQuestion.trim() || !activeDocument || isLoading) return;
+  const submitQuestion = async (userText: string) => {
+    if (!userText.trim() || !activeDocument || isLoading) return;
 
-    const userText = inputQuestion.trim();
     const userMsgId = "user-" + Date.now();
-
     const newMessages: ChatMessage[] = [
       ...messages,
       {
         id: userMsgId,
         sender: "user",
-        text: userText,
+        text: userText.trim(),
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -90,11 +89,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     setIsLoading(true);
 
     try {
-      console.log("activeDocument", activeDocument);
-      console.log("usertext: ", userText);
       const res = await docuQueryApi.queryDocument(
         activeDocument.documentId,
-        userText,
+        userText.trim(),
       );
       const isOutOfBounds = docuQueryApi.isOutOfScopeAnswer(res.answer);
 
@@ -131,6 +128,11 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitQuestion(inputQuestion);
   };
 
   const handleCopy = async (id: string, text: string) => {
@@ -210,6 +212,9 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
     );
   }
 
+  const suggestedQuestions = activeDocument.suggestedQuestions || [];
+  const showInitialPrompts = messages.length <= 1;
+
   return (
     <div className="flex-1 flex flex-col h-full bg-surface-300/30 overflow-hidden">
       {/* Messages Stream */}
@@ -258,14 +263,12 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
                   </div>
                 )}
 
-                <div className="whitespace-pre-wrap break-words">
-                  {msg.text}
-                </div>
+                <p className="whitespace-pre-wrap">{msg.text}</p>
               </div>
 
-              {/* Timestamp & Copy Option */}
+              {/* Timestamp & Utilities */}
               <div
-                className={`flex items-center gap-2 mt-1 px-1 text-[10px] text-slate-500 ${
+                className={`mt-1 flex items-center gap-2 text-[10px] text-slate-500 px-1 ${
                   msg.sender === "user" ? "justify-end" : "justify-start"
                 }`}
               >
@@ -295,6 +298,39 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           </div>
         ))}
 
+        {/* Interactive Starter Questions Panel (shown when user hasn't asked a question yet) */}
+        {showInitialPrompts && suggestedQuestions.length > 0 && (
+          <div className="my-3 sm:my-4 p-4 rounded-2xl bg-surface-100/80 border border-white/10 backdrop-blur-sm max-w-2xl animate-fade-in">
+            <div className="flex items-center gap-2 text-xs font-semibold text-brand-300 mb-1.5">
+              <Sparkles size={15} className="text-brand-400" />
+              <span>Suggested Questions to Explore</span>
+            </div>
+
+            {activeDocument.summary && (
+              <p className="text-[11px] text-slate-400 mb-3 leading-relaxed">
+                {activeDocument.summary}
+              </p>
+            )}
+
+            <div className="flex flex-col gap-2">
+              {suggestedQuestions.map((q, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => submitQuestion(q)}
+                  className="flex items-center gap-2.5 p-2.5 sm:px-3 sm:py-2.5 rounded-xl bg-surface-200/70 hover:bg-brand-500/15 border border-white/5 hover:border-brand-500/40 text-left text-xs text-slate-300 hover:text-white transition group shadow-sm active:scale-[0.99] disabled:opacity-50"
+                >
+                  <span className="w-5 h-5 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center text-[10px] font-bold shrink-0 group-hover:bg-brand-500 group-hover:text-white transition">
+                    {idx + 1}
+                  </span>
+                  <span className="line-clamp-2 leading-snug">{q}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Typing / Computing Indicator */}
         {isLoading && (
           <div className="flex gap-2 sm:gap-3 max-w-md mr-auto">
@@ -309,6 +345,27 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({
           </div>
         )}
       </div>
+
+      {/* Persistent Quick Suggestions Carousel (when user has active chat history) */}
+      {!showInitialPrompts && suggestedQuestions.length > 0 && (
+        <div className="px-4 py-2 border-t border-white/5 bg-surface-200/30 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <span className="text-[10px] font-semibold text-slate-400 shrink-0 flex items-center gap-1">
+            <Sparkles size={11} className="text-brand-400" />
+            Try:
+          </span>
+          {suggestedQuestions.map((q, idx) => (
+            <button
+              key={idx}
+              type="button"
+              disabled={isLoading}
+              onClick={() => submitQuestion(q)}
+              className="text-[11px] text-slate-300 hover:text-white px-2.5 py-1 rounded-lg bg-surface-100/80 hover:bg-brand-500/20 border border-white/10 hover:border-brand-500/30 whitespace-nowrap transition shrink-0 disabled:opacity-50"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Input Canvas */}
       <div className="p-3 sm:p-4 border-t border-white/10 bg-surface-100/60 backdrop-blur">
