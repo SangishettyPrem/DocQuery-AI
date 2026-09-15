@@ -8,7 +8,7 @@ const bootstrap = async (): Promise<void> => {
 
   // Start HTTP Server
   const server = app.listen(env.PORT, () => {
-    console.log(`Server running on http://localhost:${env.PORT}`);
+    console.log(`Server running`);
   });
 
   // Graceful shutdown handlers
